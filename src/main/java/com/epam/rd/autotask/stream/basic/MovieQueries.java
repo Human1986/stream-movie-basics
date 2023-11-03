@@ -1,6 +1,5 @@
 package com.epam.rd.autotask.stream.basic;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -9,7 +8,7 @@ public class MovieQueries {
     List<String> movies;
 
     public MovieQueries(List<String> movies) {
-//        if (movies.isEmpty()) throw new IllegalArgumentException();
+        if (movies == null) throw new IllegalArgumentException();
         this.movies = movies;
     }
 
@@ -19,13 +18,13 @@ public class MovieQueries {
 
     public long getNumberOfMoviesThatStartsWith(String start) {
         return movies.stream()
-                .filter(m -> m.startsWith(start))
+                .filter(title -> title.startsWith(start))
                 .count();
     }
 
     public long getNumberOfMoviesThatStartsWithAndEndsWith(String start, String end) {
         return movies.stream()
-                .filter(m -> m.startsWith(start) && m.endsWith(end))
+                .filter(title -> title.startsWith(start) && title.endsWith(end))
                 .count();
     }
 
@@ -37,18 +36,26 @@ public class MovieQueries {
     }
 
     public int getNumberOfLettersInShortestTitle() {
-        Optional<String> min = movies.stream()
-                .min(Comparator.comparing(String::length));
-        return Math.toIntExact(min.stream().mapToInt(String::length).count());
+        if (movies.isEmpty()) {
+            throw new IllegalArgumentException();
+        }
+
+        return movies.stream()
+                .map(String::length)
+                .min(Integer::compareTo)
+                .get();
     }
 
     public Optional<String> getFirstTitleThatContainsThreeWords() {
-        return Optional.empty();
+        return movies.stream()
+                .filter(title -> title.split(" ").length == 3)
+                .findFirst();
     }
 
     public List<String> getFirstFourTitlesThatContainAtLeastTwoWords() {
         return movies.stream()
-                .filter(s -> s.length() > 2)
+                .filter(title -> title.split(" ").length >= 2)
+                .limit(4)
                 .collect(Collectors.toList());
     }
 
